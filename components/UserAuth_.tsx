@@ -10,7 +10,7 @@ import { db } from "./services/firebase";
 interface UserAuth_Props {}
 
 const UserAuth_ = ({}: UserAuth_Props) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // 👇️👇️👇️ (string) Recoil addressState is used when a purchase is made..
   const [address_, setAddress_] = useRecoilState(addressState);
