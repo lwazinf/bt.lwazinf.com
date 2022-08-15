@@ -1,4 +1,3 @@
-import { faTwitter } from "@fortawesome/free-brands-svg-icons";
 import {
   faAdd,
   faCoins,
@@ -10,14 +9,19 @@ import {
   faVideo,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { addDoc, Timestamp, collection } from "firebase/firestore";
+import { db } from "./services/firebase";
 import { useRef, useState } from "react";
+import { addressState } from "./atoms/atoms";
+import { useRecoilState } from "recoil";
 
 interface BT_CreateObj_Props {}
 
-const BT_CreateObj_ = ({}:BT_CreateObj_) => {
+const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
   const [fund_, setFund_] = useState("50");
   const [spots_, setSpots_] = useState("N/A");
   const [split_, setSplit_] = useState("3");
+  const [body_, setBody_] = useState("");
   const [position_, setPosition_] = useState("right-[130px]");
   const [visibility_, setVisibility_] = useState(
     "opacity-0 pointer-events-none"
@@ -25,6 +29,27 @@ const BT_CreateObj_ = ({}:BT_CreateObj_) => {
 
   const [current_, setCurrent_] = useState(0);
   const [charCount_, setCharCount_] = useState(140);
+
+  const [address_, setAddress_] = useRecoilState(addressState);
+
+  // @ts-ignore
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await addDoc(collection(db, "campaigns"), {
+        author: address_,
+        body: body_,
+        created: Timestamp.now(),
+        fund: fund_,
+        split: split_,
+        spots: spots_,
+      });
+      // onClose()
+    } catch (err) {
+      alert(err);
+    }
+  };
+
   return (
     <div
       className={`rounded-[6px] shadow-md bg-[#1b2730] hover:bg-[#1b2732] transition-all duration-200 w-[550px] h-[120px] relative overflow-hidden m-2 p-2`}
@@ -58,7 +83,7 @@ const BT_CreateObj_ = ({}:BT_CreateObj_) => {
             ${fund_}
           </p>
         </div>
-        
+
         <div
           className={`opacity-50 hover:opacity-100 transition-all duration-200 flex flex-row justify-start items-center cursor-pointer w-[80px]`}
           onClick={() => {
@@ -176,7 +201,8 @@ const BT_CreateObj_ = ({}:BT_CreateObj_) => {
       >
         <input
           type={"text"}
-          maxlength={`${position_ != 'ml-[5px]' ? '3' : '2'}`}
+          // @ts-ignore
+          maxlength={`${position_ != "ml-[5px]" ? "3" : "2"}`}
           className={`w-full h-full bg-transparent text-center text-white/80 font-medium text-[13px]`}
           onChange={(e) => {
             position_ == "ml-[5px]"
@@ -185,20 +211,22 @@ const BT_CreateObj_ = ({}:BT_CreateObj_) => {
               ? setSpots_(e.target.value)
               : setFund_(e.target.value);
           }}
-          placeholder={
-            '???'
-          }
+          placeholder={"???"}
         />
       </div>
       <textarea
-        className={`w-[350px] absolute left-[90px] bg-transparent text-[15px] text-white/70 transition-all duration-200 ${current_ < 1 ? 'opacity-60 font-normal top-[32px] h-[40px]' : 'opacity-100 font-normal top-[10px] h-[64px]'}`}
+        className={`w-[350px] absolute left-[90px] bg-transparent text-[15px] text-white/70 transition-all duration-200 ${
+          current_ < 1
+            ? "opacity-60 font-normal top-[32px] h-[40px]"
+            : "opacity-100 font-normal top-[10px] h-[64px]"
+        }`}
         placeholder={`So Wassup?!`}
         rows={5}
         spellCheck={false}
+        value={body_}
         onChange={(e) => {
-          setCurrent_(
-            e.target.value.length
-          );
+          setCurrent_(e.target.value.length);
+          setBody_(e.target.value);
         }}
       />
     </div>
