@@ -61,9 +61,11 @@ const UserAuth_ = ({}: UserAuth_Props) => {
       console.log("Connected", accounts[0]);
       const docRef = doc(db, "users", accounts[0]);
       const docSnap = await getDoc(docRef);
-      if(docSnap.data() != undefined){
-        navigate('/BirdTool_');
-      };
+      if (docSnap.data() != undefined) {
+        // navigate('/BirdTool_');
+      } else {
+        // create username and add email before gaining access to main app
+      }
       setCurrentAccount_(accounts[0]);
     } catch (error) {
       console.log(error);
