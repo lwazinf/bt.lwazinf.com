@@ -1,11 +1,11 @@
 import { atom } from "recoil";
 
-export const commentState = atom({
-  key: "commentState",
-  default: true,
+export const walletState = atom({
+  key: "walletState",
+  default: false,
 });
 
-export const nodeState = atom({
-  key: "nodeState",
-  default: false,
+export const addressState = atom({
+  key: "addressState",
+  default: "",
 });

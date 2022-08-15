@@ -1,7 +1,5 @@
 import BT_CampaignObj_ from "../components/BT_CampaignObj_";
 import BT_CreateObj_ from "../components/BT_CreateObj_";
-import { db } from "../components/services/firebase";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
 
 interface BirdTool_Props {}
 
@@ -21,18 +19,6 @@ const BirdTool_ = ({}: BirdTool_Props) => {
       split_: 1,
     },
   ];
-
-  // @ts-ignore
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await addDoc(collection(db, "tasks"), {
-        created: Timestamp.now(),
-      });
-    } catch (err) {
-      alert(err);
-    }
-  };
   return (
     <div className="flex flex-col items-center justify-center w-[1200px] min-h-screen relative">
       <BT_CreateObj_ />
