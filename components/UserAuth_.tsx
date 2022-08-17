@@ -10,7 +10,10 @@ import { db } from "./services/firebase";
 interface UserAuth_Props {}
 
 const UserAuth_ = ({}: UserAuth_Props) => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
+  const refreshPage = () => {
+    navigate(0);
+  };
 
   // 👇️👇️👇️ (string) Recoil addressState is used when a purchase is made..
   const [address_, setAddress_] = useRecoilState(addressState);
@@ -34,8 +37,8 @@ const UserAuth_ = ({}: UserAuth_Props) => {
       if (accounts.length !== 0) {
         const account = accounts[0];
         console.log("Found an authorized account:", account);
-        setCurrentAccount_(account);
-        setAddress_(account);
+        setCurrentAccount_(accounts[0]);
+        setAddress_(accounts[0]);
       } else {
         console.log("No authorized account found");
       }

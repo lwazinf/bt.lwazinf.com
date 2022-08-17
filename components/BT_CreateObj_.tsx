@@ -9,7 +9,7 @@ import {
   faVideo,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { addDoc, Timestamp, collection } from "firebase/firestore";
+import { addDoc, Timestamp, collection, setDoc, doc } from "firebase/firestore";
 import { db } from "./services/firebase";
 import { useRef, useState } from "react";
 import { addressState } from "./atoms/atoms";
@@ -36,7 +36,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, "campaigns"), {
+      await setDoc(doc(db, "campaigns", address_), {
         author: address_,
         body: body_,
         created: Timestamp.now(),
@@ -193,8 +193,11 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
         />
       </div>
       <div
-        className={`h-[27px] w-[90px] rounded-[2px] m-2 cursor-pointer bg-white/60 hover:bg-white/80 transition-all duration-200 absolute bottom-0 right-0`}
-        onClick={() => {}}
+        className={`h-[27px] w-[90px] rounded-[2px] m-2 cursor-pointer bg-white/100 hover:bg-white/80 transition-all duration-200 absolute bottom-0 right-0`}
+        onClick={handleSubmit}
+        // onClick={()=>{
+        //   console.log(address_)
+        // }}
       />
       <div
         className={`w-[60px] h-[30px] rounded-[6px] shadow-md bg-[#202f3c]/90 transition-all duration-200 absolute bottom-6 left-[260px] ${position_} ${visibility_} border-solid border-[1px] border-white/10 cursor-pointer flex flex-col justify-center items-center`}
