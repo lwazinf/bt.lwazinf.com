@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.3;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -10,11 +11,7 @@ contract BirdBank {
         owner = payable (msg.sender);
     }
 
-    // receive() external payable {
-
-    // }
-
-    function fund(uint _amount) external payable {
+    function fund() external payable {
         owner.transfer(SafeMath.mul(_amount, SafeMath.div(10, 100)));
     }
 
