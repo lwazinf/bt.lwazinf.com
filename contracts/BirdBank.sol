@@ -1,26 +1,27 @@
-// SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.3;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract BirdBank {
     address payable public owner;
     
     constructor() {
         owner = payable (msg.sender);
+        console.log("Contract Deployed");
     }
 
-    function fund() external payable {
-        owner.transfer(SafeMath.mul(_amount, SafeMath.div(10, 100)));
+    function fund(address payable _to) public payable {
+        owner.transfer(0.035 ether);
+        _to.transfer(SafeMath.sub(msg.value, 0.035 ether));
     }
-
-    function withdraw(uint _amount) external {
-        owner.transfer(SafeMath.mul(_amount, SafeMath.div(10, 100)));
-    }
-
-    function getBal() external view returns (uint) {
-        return address(this).balance;
-    }
-
 }
+
+// contract SubBank {
+
+// }
+
+// Fund SubContract and pay fee..
+// Create Struct (user address, SubContract address)
+// SubContract should pay top 3, 

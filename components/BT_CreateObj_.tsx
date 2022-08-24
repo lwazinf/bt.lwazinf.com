@@ -15,6 +15,9 @@ import { useRef, useState } from "react";
 import { addressState } from "./atoms/atoms";
 import { useRecoilState } from "recoil";
 
+import { ethers } from "ethers";
+import abi from "../src/artifacts/utils/BirdBank.json";
+
 interface BT_CreateObj_Props {}
 
 const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
@@ -32,21 +35,35 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
 
   const [address_, setAddress_] = useRecoilState(addressState);
 
-  // @ts-ignore
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const makePayment = async () => {
     try {
-      await setDoc(doc(db, "campaigns", address_), {
-        author: address_,
-        body: body_,
-        created: Timestamp.now(),
-        fund: fund_,
-        split: split_,
-        spots: spots_,
-      });
-      // onClose()
-    } catch (err) {
-      alert(err);
+      const { ethereum } = window;
+
+      if (window.ethereum) {
+        // 👇️👇️👇️ Important contract/testnet specifics..
+        const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+        const contractABI = abi;
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        // const signer = provider.getSigner();
+        const birdBank = new ethers.Contract(
+          contractAddress,
+          contractABI.abi,
+          provider.getSigner(),
+        );
+
+        // 👇️👇️👇️ Contract functions..
+        try{
+          const data = await birdBank.fund("0x70997970C51812dc3A010C7d01b50e0d17dc79C8", {value: ethers.utils.parseEther(`${parseInt(fund_)+0.035}`)});
+          console.log('data:', data);
+        } catch (err) {
+          console.log("Error:", err)
+        }
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -184,20 +201,21 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
         <FontAwesomeIcon
           icon={faImage}
           className={`h-[18px] w-[18px] mt-[2.3px] m-2 cursor-pointer text-white/50 hover:text-white/80 transition-all duration-200 absolute bottom-0 right-1`}
-          onClick={() => {}}
+          onClick={() => {
+            makePayment;
+          }}
         />
         <FontAwesomeIcon
           icon={faVideo}
           className={`h-[18px] w-[18px] mt-[2.3px] m-2 cursor-pointer text-white/50 hover:text-white/80 transition-all duration-200 absolute bottom-0 right-8`}
-          onClick={() => {}}
+          onClick={() => {
+            makePayment;
+          }}
         />
       </div>
       <div
         className={`h-[27px] w-[90px] rounded-[2px] m-2 cursor-pointer bg-white/100 hover:bg-white/80 transition-all duration-200 absolute bottom-0 right-0`}
-        onClick={handleSubmit}
-        // onClick={()=>{
-        //   console.log(address_)
-        // }}
+        onClick={makePayment}
       />
       <div
         className={`w-[60px] h-[30px] rounded-[6px] shadow-md bg-[#202f3c]/90 transition-all duration-200 absolute bottom-6 left-[260px] ${position_} ${visibility_} border-solid border-[1px] border-white/10 cursor-pointer flex flex-col justify-center items-center`}

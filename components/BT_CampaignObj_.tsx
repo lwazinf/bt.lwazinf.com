@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useRecoilState } from "recoil";
-import { nodeState } from "./atoms/atoms";
 
 import React from "react";
 import ReactDOM from "react-dom";
