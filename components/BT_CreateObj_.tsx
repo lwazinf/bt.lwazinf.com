@@ -16,7 +16,8 @@ import { addressState } from "./atoms/atoms";
 import { useRecoilState } from "recoil";
 
 import { ethers } from "ethers";
-import abi from "../src/artifacts/utils/BirdBank.json";
+import birdBankABI from "../src/artifacts/contracts/BirdBank.sol/BirdBank.json";
+import subBankABI from "../src/artifacts/contracts/BirdBank.sol/SubBank.json";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 interface BT_CreateObj_Props {}
@@ -43,7 +44,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
       if (window.ethereum) {
         // 👇️👇️👇️ Important contract/testnet specifics..
         const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-        const contractABI = abi;
+        const contractABI = birdBankABI;
 
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         // const signer = provider.getSigner();
@@ -55,7 +56,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
 
         // 👇️👇️👇️ Contract functions..
         try{
-          const data = await birdBank.fund("0x70997970C51812dc3A010C7d01b50e0d17dc79C8", {value: ethers.utils.parseEther(`${parseInt(fund_)+0.035}`)});
+          const data = await birdBank.createContract({value: ethers.utils.parseEther(`${parseInt(fund_)+0.035}`)});
           console.log('data:', data);
         } catch (err) {
           console.log("Error:", err)

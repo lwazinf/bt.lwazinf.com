@@ -9,7 +9,12 @@ const main = async () => {
   const birdBank = await BirdBankFactory.deploy();
   await birdBank.deployed();
 
+  const SubBankFactory = await hre.ethers.getContractFactory("SubBank");
+  const subBank = await SubBankFactory.deploy();
+  await subBank.deployed();
+
   console.log("Contract address:", birdBank.address);
+  console.log("SubContract address:", subBank.address);
 };
 
 const runMain = async () => {
