@@ -17,6 +17,7 @@ import { useRecoilState } from "recoil";
 
 import { ethers } from "ethers";
 import abi from "../src/artifacts/utils/BirdBank.json";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 interface BT_CreateObj_Props {}
 
@@ -90,15 +91,16 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
           }}
         >
           <FontAwesomeIcon
-            icon={faCoins}
+            icon={faEthereum}
             className={`h-[19px] w-[19px] m-2 text-gray-400`}
             onClick={() => {}}
           />
           <p
             className={`text-white/80 transition-all duration-[800ms] font-medium text-[13px] my-1 mr-[2px] ml-[-5px] w-[15px]`}
           >
-            ${fund_}
+            {fund_}
           </p>
+          
         </div>
 
         <div
