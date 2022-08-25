@@ -51,16 +51,37 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
         const birdBank = new ethers.Contract(
           contractAddress,
           contractABI.abi,
-          provider.getSigner(),
+          provider.getSigner()
         );
 
         // 👇️👇️👇️ Contract functions..
-        try{
-          const data = await birdBank.createContract({value: ethers.utils.parseEther(`${parseInt(fund_)+0.035}`)});
-          console.log('data:', data);
+        try {
+          const data = await birdBank.createContract({
+            value: ethers.utils.parseEther(`${parseInt(fund_) + 0.035}`),
+          });
+          console.log("data:", data);
         } catch (err) {
-          console.log("Error:", err)
+          console.log("Error:", err);
         }
+        const campaignObj_ = {
+          who: {
+            owner: address_,
+            winners: [],
+          },
+          what: {
+            text: body_,
+            media: [],
+            spots: split_,
+            fund: fund_,
+          },
+          where: {
+            subContractIndex: 0,
+          },
+          when: {
+            created: Date.now(),
+            duration: 24,
+          },
+        };
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -101,7 +122,6 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
           >
             {fund_}
           </p>
-          
         </div>
 
         <div
