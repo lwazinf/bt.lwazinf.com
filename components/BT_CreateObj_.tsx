@@ -56,36 +56,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
     },
   });
 
-  const readChain = async () => {
-        const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-        const contractABI = birdBankABI;
-
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        // const signer = provider.getSigner();
-        const birdBank = new ethers.Contract(
-          contractAddress,
-          contractABI.abi,
-          provider
-        );
-
-        let index_ = await birdBank.owner;
-        let address__ = 
-          index_;
-        console.log(address__);
-  }
-
   const makePayment = async () => {
-        // const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-        // const contractABI = birdBankABI;
-
-        // const provider = new ethers.providers.Web3Provider(window.ethereum);
-        // const signer = provider.getSigner();
-        // const birdBank = new ethers.Contract(
-        //   contractAddress,
-        //   contractABI.abi,
-        //   signer
-        // );
-
     try {
       const { ethereum } = window;
 
@@ -111,7 +82,6 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
         } catch (err) {
           console.log("Error:", err);
         }
-
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -254,25 +224,17 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
         <FontAwesomeIcon
           icon={faImage}
           className={`h-[18px] w-[18px] mt-[2.3px] m-2 cursor-pointer text-white/50 hover:text-white/80 transition-all duration-200 absolute bottom-0 right-1`}
-          onClick={() => {
-            
-          }}
+          onClick={() => {}}
         />
         <FontAwesomeIcon
           icon={faVideo}
           className={`h-[18px] w-[18px] mt-[2.3px] m-2 cursor-pointer text-white/50 hover:text-white/80 transition-all duration-200 absolute bottom-0 right-8`}
-          onClick={
-            makePayment
-          // readChain
-        }
+          onClick={()=>{}}
         />
       </div>
       <div
         className={`h-[27px] w-[90px] rounded-[2px] m-2 cursor-pointer bg-white/100 hover:bg-white/80 transition-all duration-200 absolute bottom-0 right-0`}
-        onClick={
-            // makePayment
-          readChain
-        }
+        onClick={makePayment}
       />
       <div
         className={`w-[60px] h-[30px] rounded-[6px] shadow-md bg-[#202f3c]/90 transition-all duration-200 absolute bottom-6 left-[260px] ${position_} ${visibility_} border-solid border-[1px] border-white/10 cursor-pointer flex flex-col justify-center items-center`}

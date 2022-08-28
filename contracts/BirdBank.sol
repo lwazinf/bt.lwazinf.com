@@ -34,6 +34,8 @@ contract SubBank {
             for (uint i=0; i < 3; i++) {
                 top3[i].transfer(SafeMath.div(totalBalance, 3));
             }
+        } else {
+            console.log("Spots not taken..");
         }
     }
 
@@ -44,39 +46,35 @@ contract SubBank {
 
 contract BirdBank {
     address payable public owner;
-    SubBank[] public subBanks;
+    mapping(string => SubBank) public subBanks;
     
     constructor() {
         owner = payable (msg.sender);
     }
 
-    function createContract() public payable {
+    function createContract(string memory _uuid) public payable {
         owner.transfer(0.035 ether);
         SubBank subBank = (new SubBank){value: SafeMath.sub(msg.value, 0.035 ether)}();
-        subBanks.push(subBank);
+        subBanks[_uuid] = subBank;
     }
 
-    function getCurrentBalance(uint256 contractIndex) public view returns(uint256){
-        SubBank subBank = SubBank(address(subBanks[contractIndex]));
-        return subBank.getBalance();
+    function getAddress(string memory _uuid) public view returns(SubBank){
+        SubBank subBank = SubBank(address(subBanks[_uuid]));
+        return subBank;
     }
 
-    function getTotalBalance(uint256 contractIndex) public view returns(uint256){
-        SubBank subBank = SubBank(address(subBanks[contractIndex]));
+    function getTotalBalance(string memory _uuid) public view returns(uint256){
+        SubBank subBank = SubBank(address(subBanks[_uuid]));
         return subBank.totalBalance();
     }
 
-    function getSubBanks() public view returns(uint) {
-        return subBanks.length;
-    }
-
-    function payOut(uint256 contractIndex) public{
-        SubBank subBank = SubBank(address(subBanks[contractIndex]));
+    function payOut(string memory _uuid) public{
+        SubBank subBank = SubBank(address(subBanks[_uuid]));
         subBank.payOut();
     }
 
-    function addAddresses(uint256 contractIndex, address payable address0, address payable address1, address payable address2) public{
-        SubBank subBank = SubBank(address(subBanks[contractIndex]));
+    function addAddresses(string memory _uuid, address payable address0, address payable address1, address payable address2) public{
+        SubBank subBank = SubBank(address(subBanks[_uuid]));
         subBank.addTop3([address0, address1, address2]);
     }
 
