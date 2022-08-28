@@ -16,10 +16,9 @@ const UserAuth_ = ({}: UserAuth_Props) => {
   // };
 
   // 👇️👇️👇️ (string) Recoil addressState is used when a purchase is made..
-  const [address_, setAddress_] = useRecoilState(addressState);
 
   // 👇️👇️👇️ Check if wallet is connected or not!
-  const [currentAccount_, setCurrentAccount_] = useState("");
+  const [currentAccount_, setCurrentAccount_] = useRecoilState(addressState);
 
   const checkIfWalletIsConnected = async () => {
     try {
@@ -38,7 +37,6 @@ const UserAuth_ = ({}: UserAuth_Props) => {
         const account = accounts[0];
         console.log("Found an authorized account:", account);
         setCurrentAccount_(accounts[0]);
-        setAddress_(accounts[0]);
       } else {
         console.log("No authorized account found");
       }

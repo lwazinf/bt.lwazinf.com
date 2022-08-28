@@ -19,6 +19,7 @@ import { ethers } from "ethers";
 import birdBankABI from "../src/artifacts/contracts/BirdBank.sol/BirdBank.json";
 import subBankABI from "../src/artifacts/contracts/BirdBank.sol/SubBank.json";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import { v4 } from 'uuid';
 
 interface BT_CreateObj_Props {}
 
@@ -48,7 +49,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
       fund: fund_,
     },
     where: {
-      subContractIndex: 0,
+      contractKey: 'xxx',
     },
     when: {
       created: Date.now(),
@@ -57,28 +58,31 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
   });
 
   const makePayment = async () => {
+    const uuid_ = v4();
     try {
       const { ethereum } = window;
-
       if (window.ethereum) {
         // 👇️👇️👇️ Important contract/testnet specifics..
         const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
         const contractABI = birdBankABI;
-
         const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
         // const signer = provider.getSigner();
         const birdBank = new ethers.Contract(
           contractAddress,
           contractABI.abi,
-          provider.getSigner()
+          signer
         );
-
         // 👇️👇️👇️ Contract functions..
         try {
-          const data = await birdBank.createContract({
+          const data = await birdBank.createContract(uuid_, {
             value: ethers.utils.parseEther(`${parseInt(fund_) + 0.035}`),
           });
           console.log("data:", data);
+          campObj_.where.contractKey = uuid_;
+          campObj_.who.owner = await signer.getAddress();
+          console.log(campObj_.where.contractKey);
+          console.log(campObj_.who.owner);
         } catch (err) {
           console.log("Error:", err);
         }
@@ -234,7 +238,9 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
       </div>
       <div
         className={`h-[27px] w-[90px] rounded-[2px] m-2 cursor-pointer bg-white/100 hover:bg-white/80 transition-all duration-200 absolute bottom-0 right-0`}
-        onClick={makePayment}
+        onClick={() => {
+          makePayment('qwerty');
+        }}
       />
       <div
         className={`w-[60px] h-[30px] rounded-[6px] shadow-md bg-[#202f3c]/90 transition-all duration-200 absolute bottom-6 left-[260px] ${position_} ${visibility_} border-solid border-[1px] border-white/10 cursor-pointer flex flex-col justify-center items-center`}
