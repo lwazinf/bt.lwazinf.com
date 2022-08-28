@@ -17,12 +17,12 @@ import Bg_ from "./Bg_";
 interface CampaignObj_Props {
   tweet_: string,
   fund_: number,
-  spots_: number,
   split_: number,
+  // spots_: number,
   // media_: string
 }
 
-const CampaignObj_ = ({tweet_, fund_, spots_, split_}: CampaignObj_Props) => {
+const CampaignObj_ = ({tweet_, fund_, split_}: CampaignObj_Props) => {
   // 👇️👇️👇️ Recoil atoms..
   // const [notification_, setNotification_] = useRecoilState(notificationState);
   const [options_, setOptions_] = useState(false);
@@ -250,7 +250,7 @@ const CampaignObj_ = ({tweet_, fund_, spots_, split_}: CampaignObj_Props) => {
               ${fund_} Fund
             </p>
           </div>
-          <div
+          {/* <div
             className={`flex flex-row justify-center items-center hover:opacity-100 transition-all duration-200 ${
               option_ == "details"
                 ? "opacity-80 pointer-events-auto"
@@ -270,7 +270,7 @@ const CampaignObj_ = ({tweet_, fund_, spots_, split_}: CampaignObj_Props) => {
             >
               {spots_} Spots
             </p>
-          </div>
+          </div> */}
           <div
             className={`flex flex-row justify-center items-center hover:opacity-100 transition-all duration-200 ${
               option_ == "details"

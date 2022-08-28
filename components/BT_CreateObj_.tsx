@@ -9,7 +9,16 @@ import {
   faVideo,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { addDoc, Timestamp, collection, setDoc, doc } from "firebase/firestore";
+import {
+  addDoc,
+  Timestamp,
+  collection,
+  setDoc,
+  doc,
+  updateDoc,
+  query,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "./services/firebase";
 import { useRef, useState } from "react";
 import { addressState } from "./atoms/atoms";
@@ -19,12 +28,12 @@ import { ethers } from "ethers";
 import birdBankABI from "../src/artifacts/contracts/BirdBank.sol/BirdBank.json";
 import subBankABI from "../src/artifacts/contracts/BirdBank.sol/SubBank.json";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
-import { v4 } from 'uuid';
+import { v4 } from "uuid";
 
 interface BT_CreateObj_Props {}
 
 const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
-  const [fund_, setFund_] = useState("50");
+  const [fund_, setFund_] = useState(0.1);
   const [spots_, setSpots_] = useState("N/A");
   const [split_, setSplit_] = useState("3");
   const [body_, setBody_] = useState("");
@@ -37,28 +46,26 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
   const [charCount_, setCharCount_] = useState(140);
 
   const [address_, setAddress_] = useRecoilState(addressState);
-  const [campObj_, setCampObj_] = useState({
-    who: {
-      owner: address_,
-      winners: [],
-    },
-    what: {
-      text: body_,
-      media: [],
-      spots: split_,
-      fund: fund_,
-    },
-    where: {
-      contractKey: 'xxx',
-    },
-    when: {
-      created: Date.now(),
-      duration: 24,
-    },
-  });
+  const [campObj_, setCampObj_] = useState({});
 
-  const makePayment = async () => {
-    const uuid_ = v4();
+  const getUUID: any = async () => {
+    let uuid_ = v4();
+    const ids: any[] = [];
+    const q = await getDocs(collection(db, "campaigns"));
+    q.forEach((doc) => {
+      ids.push(doc.data().where.contractKey);
+    });
+
+    if (!ids.includes(uuid_)) {
+      return uuid_;
+    } else {
+      return await getUUID();
+    }
+  };
+
+  const makePayment: any = async () => {
+    const uuid_ = await getUUID();
+
     try {
       const { ethereum } = window;
       if (window.ethereum) {
@@ -67,22 +74,40 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
         const contractABI = birdBankABI;
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
+
         // const signer = provider.getSigner();
         const birdBank = new ethers.Contract(
           contractAddress,
           contractABI.abi,
           signer
         );
+
         // 👇️👇️👇️ Contract functions..
         try {
           const data = await birdBank.createContract(uuid_, {
-            value: ethers.utils.parseEther(`${parseInt(fund_) + 0.035}`),
+            value: ethers.utils.parseEther(`${fund_ + 0.035}`),
           });
-          console.log("data:", data);
-          campObj_.where.contractKey = uuid_;
-          campObj_.who.owner = await signer.getAddress();
-          console.log(campObj_.where.contractKey);
-          console.log(campObj_.who.owner);
+
+          setCampObj_({
+            who: {
+              owner: await signer.getAddress(),
+              winners: [],
+            },
+            what: {
+              text: body_,
+              media: [],
+              split: split_,
+              fund: fund_,
+            },
+            where: {
+              contractKey: uuid_,
+            },
+            when: {
+              created: Timestamp.now(),
+              duration: 24,
+            },
+          })
+          setDoc(doc(db, "campaigns", uuid_), campObj_);
         } catch (err) {
           console.log("Error:", err);
         }
@@ -105,7 +130,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
           className={`opacity-50 hover:opacity-100 transition-all duration-200 flex flex-row justify-start items-center cursor-pointer w-[80px]`}
           onClick={() => {
             setPosition_("ml-[-100px]");
-            setFund_("");
+            setFund_(0.1);
             if (visibility_ == "opacity-0 pointer-events-none") {
               setVisibility_("opacity-100 pointer-events-auto");
             } else if (
@@ -233,13 +258,13 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
         <FontAwesomeIcon
           icon={faVideo}
           className={`h-[18px] w-[18px] mt-[2.3px] m-2 cursor-pointer text-white/50 hover:text-white/80 transition-all duration-200 absolute bottom-0 right-8`}
-          onClick={()=>{}}
+          onClick={() => {}}
         />
       </div>
       <div
         className={`h-[27px] w-[90px] rounded-[2px] m-2 cursor-pointer bg-white/100 hover:bg-white/80 transition-all duration-200 absolute bottom-0 right-0`}
         onClick={() => {
-          makePayment('qwerty');
+          makePayment();
         }}
       />
       <div
@@ -255,7 +280,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
               ? setSplit_(e.target.value)
               : position_ == "ml-[-45px]"
               ? setSpots_(e.target.value)
-              : setFund_(e.target.value);
+              : setFund_(parseFloat(e.target.value));
           }}
           placeholder={"???"}
         />
