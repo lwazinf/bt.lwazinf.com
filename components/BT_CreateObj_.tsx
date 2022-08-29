@@ -20,7 +20,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "./services/firebase";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { addressState } from "./atoms/atoms";
 import { useRecoilState } from "recoil";
 
@@ -33,6 +33,9 @@ import { v4 } from "uuid";
 interface BT_CreateObj_Props {}
 
 const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
+  const [images, setImages] = useState("");
+  const [modal, setModal] = useState("");
+
   const [fund_, setFund_] = useState(0.1);
   const [spots_, setSpots_] = useState("N/A");
   const [split_, setSplit_] = useState("3");
@@ -63,6 +66,16 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
     }
   };
 
+  const onMutate = (e: { target: { files: any[] } }) => {
+    // Files
+    if (e.target.files) {
+      setImages([e.target.files[0], URL.createObjectURL(e.target.files[0])]);
+      console.log(e.target.files[0]);
+    } else {
+      console.log("No Images Selected!");
+    }
+  };
+
   const makePayment: any = async () => {
     const uuid_ = await getUUID();
 
@@ -88,7 +101,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
             value: ethers.utils.parseEther(`${fund_ + 0.035}`),
           });
 
-          setCampObj_({
+          const x_ = {
             who: {
               owner: await signer.getAddress(),
               winners: [],
@@ -106,8 +119,8 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
               created: Timestamp.now(),
               duration: 24,
             },
-          })
-          setDoc(doc(db, "campaigns", uuid_), campObj_);
+          };
+          setDoc(doc(db, "campaigns", uuid_), x_);
         } catch (err) {
           console.log("Error:", err);
         }
@@ -250,15 +263,44 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
         >
           {charCount_ - current_}
         </p>
-        <FontAwesomeIcon
-          icon={faImage}
-          className={`h-[18px] w-[18px] mt-[2.3px] m-2 cursor-pointer text-white/50 hover:text-white/80 transition-all duration-200 absolute bottom-0 right-1`}
-          onClick={() => {}}
-        />
+        <form>
+          <input
+            className="formInputFile"
+            type="file"
+            id="images"
+            max="4"
+            accept=".jpg,.png,.jpeg"
+            // onChange={onMutate}
+            multiple
+            required
+            hidden
+          />
+          <label htmlFor="images">
+            <div
+              // className={}
+              style={{ height: "145px" }}
+              id="adhoc"
+              onClick={() => {
+                
+              }}
+            >
+              <FontAwesomeIcon
+                icon={faImage}
+                className={`h-[18px] w-[18px] mt-[2.3px] m-2 cursor-pointer text-white/50 hover:text-white/80 transition-all duration-200 absolute bottom-0 right-1`}
+                onClick={() => {
+                  console.log("Uploading images..");
+                }}
+              />
+            </div>
+          </label>
+        </form>
+
         <FontAwesomeIcon
           icon={faVideo}
           className={`h-[18px] w-[18px] mt-[2.3px] m-2 cursor-pointer text-white/50 hover:text-white/80 transition-all duration-200 absolute bottom-0 right-8`}
-          onClick={() => {}}
+          onClick={() => {
+            console.log("Uploading video..");
+          }}
         />
       </div>
       <div
