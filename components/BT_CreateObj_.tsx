@@ -20,7 +20,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "./services/firebase";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { addressState } from "./atoms/atoms";
 import { useRecoilState } from "recoil";
 
@@ -29,6 +29,7 @@ import birdBankABI from "../src/artifacts/contracts/BirdBank.sol/BirdBank.json";
 import subBankABI from "../src/artifacts/contracts/BirdBank.sol/SubBank.json";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { v4 } from "uuid";
+import { getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
 
 interface BT_CreateObj_Props {}
 
@@ -50,6 +51,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
 
   const [address_, setAddress_] = useRecoilState(addressState);
   const [campObj_, setCampObj_] = useState({});
+  const [media_, setMedia_] = useState([]);
 
   const getUUID: any = async () => {
     let uuid_ = v4();
@@ -66,15 +68,18 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
     }
   };
 
-  const onMutate = (e: { target: { files: any[] } }) => {
-    // Files
-    if (e.target.files) {
-      setImages([e.target.files[0], URL.createObjectURL(e.target.files[0])]);
-      console.log(e.target.files[0]);
-    } else {
-      console.log("No Images Selected!");
-    }
-  };
+  const [imageUpload_, setImageUpload_] = useState(null);
+  const uploadFiles = (name_: string | undefined) => {
+    if(imageUpload_ == null) return;
+    const storage = getStorage();
+    const storageRef = ref(storage, `images/${name_}/${v4()}`);
+
+    uploadBytes(storageRef, imageUpload_).then((snapshot) => {
+      console.log('Uploaded a blob or file!');
+    });
+
+    return any
+  }
 
   const makePayment: any = async () => {
     const uuid_ = await getUUID();
@@ -97,6 +102,8 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
 
         // 👇️👇️👇️ Contract functions..
         try {
+          uploadFiles(await signer.getAddress())
+          
           const data = await birdBank.createContract(uuid_, {
             value: ethers.utils.parseEther(`${fund_ + 0.035}`),
           });
@@ -108,7 +115,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
             },
             what: {
               text: body_,
-              media: [],
+              media: media_,
               split: split_,
               fund: fund_,
             },
@@ -120,6 +127,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
               duration: 24,
             },
           };
+          
           setDoc(doc(db, "campaigns", uuid_), x_);
         } catch (err) {
           console.log("Error:", err);
@@ -270,7 +278,10 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
             id="images"
             max="4"
             accept=".jpg,.png,.jpeg"
-            // onChange={onMutate}
+            onChange = {(event) => {
+              setImageUpload_(event.target.files)
+              console.log(imageUpload_)
+            }}
             multiple
             required
             hidden
@@ -280,9 +291,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
               // className={}
               style={{ height: "145px" }}
               id="adhoc"
-              onClick={() => {
-                
-              }}
+              onClick={() => {}}
             >
               <FontAwesomeIcon
                 icon={faImage}

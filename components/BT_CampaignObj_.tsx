@@ -36,25 +36,29 @@ const CampaignObj_ = ({ data_ }: CampaignObj_Props) => {
 
   const [switch_, setSwitch_] = useState(true);
   const [userDP_, setUserDP_] = useState("");
-  
-  const [dp_, setDP_] = useState('');
-  
+
+  const [dp_, setDP_] = useState("");
+
   const getDP = async () => {
     const docRef = doc(db, "users", data_.who.owner);
     const docSnap = await getDoc(docRef);
-    const doc_ = docSnap.data()
-    // setDP_(await doc_.dp)
-    return await doc_.dp;
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
   };
-  
 
   useEffect(() => {
-    getDP().then((result) => {
-      setUserDP_(result);
-      return setDP_(result);
-    })
-  }, [])
-  
+    const y = async () => {
+      const x = await getDP();
+      return x;
+    };
+    y().then((result) => {
+      if(result != undefined ){
+        setDP_(result.dp);
+        setUserDP_(result.dp);
+      };
+    });
+  }, []);
 
   return (
     <div
@@ -80,7 +84,12 @@ const CampaignObj_ = ({ data_ }: CampaignObj_Props) => {
         <div
           className={`w-[160px] h-full bg-white/5 rounded-[6px] mr-3 relative right-[6px] top-[45px] overflow-hidden`}
         >
-          <img className={`w-full h-full object-cover`} src={dp_}></img>
+          <img
+            className={`w-full h-full object-cover ${
+              userDP_.length == 0 ? "opacity-0" : "opacity-100"
+            } transition-all duration-500`}
+            src={dp_}
+          ></img>
         </div>
         <p
           className={`text-white/70 font-normal text-[15px] w-[330px] ml-auto`}
@@ -99,6 +108,7 @@ const CampaignObj_ = ({ data_ }: CampaignObj_Props) => {
         {data_.what.media.map((dataPoint, index) => {
           return (
             <div
+              key={index}
               className={`min-w-[70px] h-[70px] rounded-[4px] m-[6px] cursor-pointer hover:p-[1.8px] ${
                 image_ == index ? "p-[1.5px]" : "p-0"
               } transition-all duration-200`}
@@ -173,8 +183,8 @@ const CampaignObj_ = ({ data_ }: CampaignObj_Props) => {
                 : "opacity-0 pointer-events-none"
             }`}
             onClick={async () => {
-              console.log(await getDP())
-              console.log('///////', dp_)
+              console.log(await getDP());
+              console.log("///////", dp_);
               setOption_("details");
             }}
           >
