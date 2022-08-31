@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 
 import React from "react";
 import ReactDOM from "react-dom";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+
+import { db } from "./services/firebase";
 
 import {
   faEllipsisH,
@@ -13,21 +15,46 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Bg_ from "./Bg_";
+import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 interface CampaignObj_Props {
-  tweet_: string,
-  fund_: number,
-  split_: number,
+  // tweet_: string,
+  // fund_: number,
+  // split_: number,
   // spots_: number,
+  data_: any;
   // media_: string
 }
 
-const CampaignObj_ = ({tweet_, fund_, split_}: CampaignObj_Props) => {
+const CampaignObj_ = ({ data_ }: CampaignObj_Props) => {
   // 👇️👇️👇️ Recoil atoms..
   // const [notification_, setNotification_] = useRecoilState(notificationState);
   const [options_, setOptions_] = useState(false);
   const [option_, setOption_] = useState("main");
   const [image_, setImage_] = useState(-1);
+
+  const [switch_, setSwitch_] = useState(true);
+  const [userDP_, setUserDP_] = useState("");
+  
+  const [dp_, setDP_] = useState('');
+  
+  const getDP = async () => {
+    const docRef = doc(db, "users", data_.who.owner);
+    const docSnap = await getDoc(docRef);
+    const doc_ = docSnap.data()
+    // setDP_(await doc_.dp)
+    return await doc_.dp;
+  };
+  
+
+  useEffect(() => {
+    getDP().then((result) => {
+      setUserDP_(result);
+      return setDP_(result);
+    })
+  }, [])
+  
 
   return (
     <div
@@ -43,30 +70,6 @@ const CampaignObj_ = ({tweet_, fund_, split_}: CampaignObj_Props) => {
         <Bg_ />
       </div>
 
-      {/* <div className={`flex flex-row absolute bottom-0 w-full h-[30px] justify-end`}>
-        <p className={`text-white/50 font-medium text-[15px]`}>
-          Participants:
-        </p>
-        <p className={`text-white/70 font-semibold text-[12px] ml-1`}>
-          23
-        </p>
-        <p className={`text-white/60 font-semibold text-[15px] mr-3`}>
-          /30
-        </p>
-        <p className={`text-white/50 font-medium text-[15px]`}>
-          Split:
-        </p>
-        <p className={`text-white/70 font-semibold text-[15px] ml-1 mr-3`}>
-          $50
-        </p>
-        <p className={`text-white/50 font-medium text-[15px]`}>
-          Seats:
-        </p>
-        <p className={`text-white/70 font-semibold text-[15px] ml-1 mr-3`}>
-          5
-        </p>
-      </div> */}
-
       <div
         className={`flex flex-row absolute top-0 w-full h-full items-center p-6 mt-[-40px] transition-all duration-200 ${
           options_
@@ -75,12 +78,14 @@ const CampaignObj_ = ({tweet_, fund_, split_}: CampaignObj_Props) => {
         }`}
       >
         <div
-          className={`min-w-[160px] h-full bg-white/50 rounded-[6px] mr-3 relative right-[6px] top-[45px]`}
-        />
+          className={`w-[160px] h-full bg-white/5 rounded-[6px] mr-3 relative right-[6px] top-[45px] overflow-hidden`}
+        >
+          <img className={`w-full h-full object-cover`} src={dp_}></img>
+        </div>
         <p
           className={`text-white/70 font-normal text-[15px] w-[330px] ml-auto`}
         >
-          {tweet_}
+          {data_.what.text}
         </p>
       </div>
       <div
@@ -90,70 +95,34 @@ const CampaignObj_ = ({tweet_, fund_, split_}: CampaignObj_Props) => {
             : "opacity-100 pointer-events-auto"
         }`}
       >
-        <div
-          className={`min-w-[70px] h-[70px] rounded-[4px] m-[6px] cursor-pointer hover:p-[1.8px] ${
-            image_ == 0 ? "p-[1.5px]" : "p-0"
-          } transition-all duration-200`}
-        >
-          <div
-            className={`w-full h-full bg-white/50 rounded-[4px]`}
-            onClick={() => {
-              if (image_ == 0) {
-                setImage_(-1);
-              } else {
-                setImage_(0);
-              }
-            }}
-          />
-        </div>
-        <div
-          className={`min-w-[70px] h-[70px] rounded-[4px] m-[6px] cursor-pointer hover:p-[1.8px] ${
-            image_ == 1 ? "p-[1.5px]" : "p-0"
-          } transition-all duration-200`}
-        >
-          <div
-            className={`w-full h-full bg-white/50 rounded-[4px]`}
-            onClick={() => {
-              if (image_ == 1) {
-                setImage_(-1);
-              } else {
-                setImage_(1);
-              }
-            }}
-          />
-        </div>
-        <div
-          className={`min-w-[70px] h-[70px] rounded-[4px] m-[6px] cursor-pointer hover:p-[1.8px] ${
-            image_ == 2 ? "p-[1.5px]" : "p-0"
-          } transition-all duration-200`}
-        >
-          <div
-            className={`w-full h-full bg-white/50 rounded-[4px]`}
-            onClick={() => {
-              if (image_ == 2) {
-                setImage_(-1);
-              } else {
-                setImage_(2);
-              }
-            }}
-          />
-        </div>
-        <div
-          className={`min-w-[70px] h-[70px] rounded-[4px] m-[6px] cursor-pointer hover:p-[1.8px] ${
-            image_ == 3 ? "p-[1.5px]" : "p-0"
-          } transition-all duration-200`}
-        >
-          <div
-            className={`w-full h-full bg-white/50 rounded-[4px]`}
-            onClick={() => {
-              if (image_ == 3) {
-                setImage_(-1);
-              } else {
-                setImage_(3);
-              }
-            }}
-          />
-        </div>
+        {/* @ts-ignore */}
+        {data_.what.media.map((dataPoint, index) => {
+          return (
+            <div
+              className={`min-w-[70px] h-[70px] rounded-[4px] m-[6px] cursor-pointer hover:p-[1.8px] ${
+                image_ == index ? "p-[1.5px]" : "p-0"
+              } transition-all duration-200`}
+            >
+              <div
+                className={`w-full h-full bg-white/50 rounded-[4px]`}
+                onClick={() => {
+                  if (image_ == index) {
+                    setImage_(-1);
+                    setDP_(userDP_);
+                  } else {
+                    setImage_(index);
+                    setDP_(dataPoint);
+                  }
+                }}
+              >
+                <img
+                  className={`w-full h-full object-cover`}
+                  src={dataPoint}
+                ></img>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <FontAwesomeIcon
@@ -185,7 +154,7 @@ const CampaignObj_ = ({tweet_, fund_, split_}: CampaignObj_Props) => {
             }`}
           >
             <CopyToClipboard
-              text={tweet_}
+              text={data_.what.text}
               onCopy={() => {
                 setOptions_(false);
               }}
@@ -203,7 +172,9 @@ const CampaignObj_ = ({tweet_, fund_, split_}: CampaignObj_Props) => {
                 ? "opacity-100 pointer-events-auto"
                 : "opacity-0 pointer-events-none"
             }`}
-            onClick={() => {
+            onClick={async () => {
+              console.log(await getDP())
+              console.log('///////', dp_)
               setOption_("details");
             }}
           >
@@ -240,14 +211,14 @@ const CampaignObj_ = ({tweet_, fund_, split_}: CampaignObj_Props) => {
             }}
           >
             <FontAwesomeIcon
-              icon={faCoins}
+              icon={faEthereum}
               className={`h-[20px] w-[20px] ml-6 mr-[-28px] text-gray-400`}
               onClick={() => {}}
             />
             <p
               className={`text-white/80 transition-all duration-[800ms] font-medium text-[13px] w-full text-left ml-9 my-1 cursor-default`}
             >
-              ${fund_} Fund
+              {data_.what.fund} Fund
             </p>
           </div>
           {/* <div
@@ -289,7 +260,7 @@ const CampaignObj_ = ({tweet_, fund_, split_}: CampaignObj_Props) => {
             <p
               className={`text-white/80 hover:text-white transition-all duration-[800ms] font-medium text-[13px] w-full text-left ml-9 my-1 cursor-default`}
             >
-              {split_} Split
+              {data_.what.split} Split
             </p>
           </div>
         </div>

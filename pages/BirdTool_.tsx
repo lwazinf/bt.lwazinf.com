@@ -24,17 +24,13 @@ const BirdTool_ = ({}: BirdTool_Props) => {
       {campaigns_.map((myMap, index) => {
         return (
           <BT_CampaignObj_ 
-          split_={
+          user_={
             // @ts-ignore
-            campaigns_[index].what.split
+            campaigns_[index].who.owner
           }
-          tweet_ = {
+          data_={
             // @ts-ignore
-            campaigns_[index].what.text
-          }
-          fund_= {
-            // @ts-ignore
-            campaigns_[index].what.fund
+            campaigns_[index]
           }
           />
         );
