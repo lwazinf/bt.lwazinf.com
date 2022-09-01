@@ -29,7 +29,12 @@ import birdBankABI from "../src/artifacts/contracts/BirdBank.sol/BirdBank.json";
 import subBankABI from "../src/artifacts/contracts/BirdBank.sol/SubBank.json";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 import { v4 } from "uuid";
-import { getDownloadURL, getStorage, listAll, ref, uploadBytes } from "firebase/storage";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
 
 interface BT_CreateObj_Props {}
 
@@ -47,11 +52,13 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
   );
 
   const [current_, setCurrent_] = useState(0);
-  const [charCount_, setCharCount_] = useState(140);
+  const charCount_ = 140;
 
   const [address_, setAddress_] = useRecoilState(addressState);
   const [campObj_, setCampObj_] = useState({});
-  const [media_, setMedia_] = useState([]);
+  const [upload_, setUpload_] = useState(false);
+  const [media_, setMedia_] = useState<string[]>([]);
+  const [imageUpload_, setImageUpload_] = useState([]);
 
   const getUUID: any = async () => {
     let uuid_ = v4();
@@ -68,18 +75,61 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
     }
   };
 
-  const [imageUpload_, setImageUpload_] = useState(null);
-  const uploadFiles = (name_: string | undefined) => {
-    if(imageUpload_ == null) return;
-    const storage = getStorage();
-    const storageRef = ref(storage, `images/${name_}/${v4()}`);
+  // Store image in firebase
+  const storeImage = async (image: Blob | Uint8Array | ArrayBuffer) => {
+    return new Promise((resolve, reject) => {
+      const storage = getStorage();
+      const fileName = `${image.name}`;
 
-    uploadBytes(storageRef, imageUpload_).then((snapshot) => {
-      console.log('Uploaded a blob or file!');
+      const storageRef = ref(storage, "images/" + fileName);
+
+      const uploadTask = uploadBytesResumable(storageRef, image);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              break;
+            case "running":
+              console.log("Upload is running");
+              break;
+            default:
+              break;
+          }
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          // Handle successful uploads on complete
+          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+            resolve(downloadURL);
+            let files = media_;
+            console.log('////////////////', downloadURL)
+            files.push(downloadURL);
+            // setMedia_(files)
+            console.log(files)
+          });
+        }
+      );
     });
+  };
 
-    return any
-  }
+  // @ts-ignore
+  const onMutate = async (e) => {
+    // Files
+    if (e.target.files) {
+      setImageUpload_(await e.target.files);
+    } else {
+      console.log("No Images Selected!");
+    }
+  };
 
   const makePayment: any = async () => {
     const uuid_ = await getUUID();
@@ -102,11 +152,16 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
 
         // 👇️👇️👇️ Contract functions..
         try {
-          uploadFiles(await signer.getAddress())
-          
           const data = await birdBank.createContract(uuid_, {
             value: ethers.utils.parseEther(`${fund_ + 0.035}`),
           });
+
+          for (let i = 0; i < imageUpload_.length; i++) {
+            if(i < 4){
+              await storeImage(imageUpload_[i]);
+            }
+          }
+          console.log(media_.length);
 
           const x_ = {
             who: {
@@ -127,8 +182,12 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
               duration: 24,
             },
           };
-          
-          setDoc(doc(db, "campaigns", uuid_), x_);
+
+          const run_ = await setDoc(doc(db, "campaigns", uuid_), x_);
+          console.log(x_)
+          setImageUpload_([])
+          setMedia_([])
+
         } catch (err) {
           console.log("Error:", err);
         }
@@ -278,9 +337,8 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
             id="images"
             max="4"
             accept=".jpg,.png,.jpeg"
-            onChange = {(event) => {
-              setImageUpload_(event.target.files)
-              console.log(imageUpload_)
+            onChange={(event) => {
+              onMutate(event);
             }}
             multiple
             required
@@ -298,6 +356,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
                 className={`h-[18px] w-[18px] mt-[2.3px] m-2 cursor-pointer text-white/50 hover:text-white/80 transition-all duration-200 absolute bottom-0 right-1`}
                 onClick={() => {
                   console.log("Uploading images..");
+                  setImageUpload_([])
                 }}
               />
             </div>
@@ -309,6 +368,7 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
           className={`h-[18px] w-[18px] mt-[2.3px] m-2 cursor-pointer text-white/50 hover:text-white/80 transition-all duration-200 absolute bottom-0 right-8`}
           onClick={() => {
             console.log("Uploading video..");
+            console.log(media_, imageUpload_);
           }}
         />
       </div>

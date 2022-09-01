@@ -183,8 +183,6 @@ const CampaignObj_ = ({ data_ }: CampaignObj_Props) => {
                 : "opacity-0 pointer-events-none"
             }`}
             onClick={async () => {
-              console.log(await getDP());
-              console.log("///////", dp_);
               setOption_("details");
             }}
           >
