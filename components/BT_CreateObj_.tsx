@@ -372,11 +372,13 @@ const BT_CreateObj_ = ({}: BT_CreateObj_Props) => {
         />
       </div>
       <div
-        className={`h-[27px] w-[90px] rounded-[2px] m-2 cursor-pointer bg-white/100 hover:bg-white/80 transition-all duration-200 absolute bottom-0 right-0`}
+        className={`h-[27px] w-[90px] rounded-[2px] m-2 cursor-pointer bg-white/100 hover:bg-white/80 transition-all duration-200 absolute bottom-0 right-0 flex flex-col justify-center items-center`}
         onClick={() => {
           makePayment();
         }}
-      />
+      >
+        <p className={`font-medium text-[13px]`}>Post</p>
+      </div>
       <div
         className={`w-[60px] h-[30px] rounded-[6px] shadow-md bg-[#202f3c]/90 transition-all duration-200 absolute bottom-6 left-[260px] ${position_} ${visibility_} border-solid border-[1px] border-white/10 cursor-pointer flex flex-col justify-center items-center`}
       >
